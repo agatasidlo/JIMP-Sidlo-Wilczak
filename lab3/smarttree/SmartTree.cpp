@@ -1,8 +1,10 @@
 #include <ostream>
-#include <string>
+#include <sstream>
+#include<string>
+#include<iostream>
 #include <memory>
-#include "SmartTree.h"
 #include <regex>
+#include "SmartTree.h"
 
 namespace datastructures {
 
@@ -38,37 +40,29 @@ namespace datastructures {
     }
 
     std::string DumpTree(const std::unique_ptr<SmartTree> &tree) {
-        std::string dtree;
+        std::stringstream dtree;
         if (tree != nullptr) {
-            dtree.append("[");
+            dtree << "[";
             std::string str = std::to_string(tree->value);
-            dtree.append(str);
+            dtree <<str;
             if (tree->left != nullptr) {
-                dtree.append(" ");
-                dtree.append(DumpTree(tree->left));
+                dtree << " ";
+                dtree << DumpTree(tree->left);
             } else {
-                dtree.append(" ");
-                dtree.append("[none]");
+                dtree << " ";
+                dtree << "[none]";
             }
-
             if (tree->right != nullptr) {
-                dtree.append(" ");
-                dtree.append(DumpTree(tree->right));
+                dtree << " ";
+                dtree << DumpTree(tree->right);
             } else {
-                dtree.append(" ");
-                dtree.append("[none]");
+                dtree << " ";
+                dtree << "[none]";
             }
-            dtree.append("]");
+            dtree << "]";
         }
-        return dtree;
+        std::string result = dtree.str();
+        return result;
     }
-
-    /* std::unique_ptr <SmartTree> RestoreTree(const std::string &tree){
-    std::regex pattern{R"(\[(\d+|none\])\s(.*))"};
-    std::string line{tree};
-    std::smatch matches;
-    if (regex_match(line, matches, pattern)) {
-     }
-} */
 
 }
