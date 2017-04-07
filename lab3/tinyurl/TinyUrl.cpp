@@ -13,37 +13,23 @@ namespace tinyurl {
     }
 
     void NextHash(array<char, 6> *state) {
-        array<char, 6> arr;
+        array<char, 6> &arr = *state;
         arr = *state;
-        bool flag = true;
+        bool carry = true;
         int i = 5;
-        while (flag) {
-            if (arr[i] == 122)
-                arr[i] = 48;
-            else if (arr[i] == 90) {
-                arr[i] = 97;
-                flag = false;
-            } else if (arr[i] == 57) {
-                arr[i] = 65;
-                flag = false;
-            } else if (47 < arr[i] < 57 || 64 < arr[i] < 90 || 96 < arr[i] < 122) {
-                arr[i] += 1;
-                flag = false;
+        while (carry) {
+            carry = false;
+            if (arr[i] == 'z') {
+                arr[i] = '0';
+                carry = true;
             }
+            else if (arr[i] == 'Z')
+                arr[i] = 'a';
+            else if (arr[i] == '9')
+                arr[i] = 'A';
+            else if ('0' <= arr[i] < '9' || 'A' <= arr[i] < 'Z' || 'a' <= arr[i] < 'z')
+                arr[i] += 1;
             i--;
         }
-        *state = arr;
     }
-
-
-
-//    std::string Encode(const std::string &url, std::unique_ptr<TinyUrlCodec> *codec) {
-
-//    }
-
-
-
-//    std::string Decode(const std::unique_ptr<TinyUrlCodec> &codec, const std::string &hash) {
-
-//    }
 }
