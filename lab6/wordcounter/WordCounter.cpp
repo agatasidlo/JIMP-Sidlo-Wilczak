@@ -2,7 +2,6 @@
 #include <iostream>
 #include <utility>
 #include <vector>
-#include <ostream>
 #include <algorithm>
 #include <functional>
 #include "Word.h"
@@ -18,17 +17,16 @@ namespace datastructures {
     }
 
     WordCounter::WordCounter(const initializer_list<Word> &elements) {
-        Word w;
-        for (w : elements) {
+        for (auto word : elements) {
             bool flag = false;
             for (std::vector<std::pair<Word, Counts>>::iterator it = _words.begin(); it != _words.end(); ++it) {
-                if (w == it->first) {
+                if (word == it->first) {
                     it->second++;
                     flag = true;
                 }
             }
             if (!flag) {
-                _words.push_back(pair<Word, Counts>(w, 1));
+                _words.push_back(pair<Word, Counts>(word, 1));
             }
 
         }
