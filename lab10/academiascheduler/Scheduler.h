@@ -43,9 +43,7 @@ namespace academia {
                                                                                               year_{year} {}
         int CourseId() const;
         int TeacherId() const;
-
         int RoomId() const;
-
         int TimeSlot() const;
 
         int Year() const;
@@ -80,8 +78,6 @@ namespace academia {
         Schedule PrepareNewSchedule(const std::vector<int> &rooms,
                                     const std::map<int, std::vector<int>> &teacher_courses_assignment,
                                     const std::map<int, std::set<int>> &courses_of_year, int n_time_slots);
-
-    private:
 
     };
 }
