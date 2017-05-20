@@ -1,41 +1,47 @@
-
 #include <algorithm>
+#include <string>
 #include <iostream>
-#include "Scheduler.h"
+#include"Scheduler.h"
+
 
 namespace academia {
-    SchedulingItem::SchedulingItem(int course_id, int teacher_id, int room_id, int time_slot, int year) : course_id(
-            course_id), teacher_id(teacher_id), room_id(room_id), time_slot(time_slot), year(year) {}
 
-    SchedulingItem::SchedulingItem() {}
+    int SchedulingItem::CourseId() const {
+        return course_id_;
+    }
 
-    int SchedulingItem::CourseId() const { return course_id; }
+    int SchedulingItem::TeacherId() const {
+        return teacher_id_;
+    }
 
-    int SchedulingItem::TeacherId() const { return teacher_id; }
+    int SchedulingItem::RoomId() const {
+        return room_id_;
+    }
 
-    int SchedulingItem::RoomId() const { return room_id; }
+    int SchedulingItem::TimeSlot() const {
+        return time_slot_;
+    }
 
-    int SchedulingItem::TimeSlot() const { return time_slot; }
+    int SchedulingItem::Year() const {
+        return year_;
+    }
 
-    int SchedulingItem::Year() const { return year; }
+    void SchedulingItem::SetCourseId(int a) { course_id_ = a; };
 
-    void SchedulingItem::SetCourseId(int a) { course_id = a; };
+    void SchedulingItem::SetTeacherId(int a) { teacher_id_ = a; };
 
-    void SchedulingItem::SetTeacherId(int a) { teacher_id = a; };
+    void SchedulingItem::SetRoomId(int a) { room_id_ = a; };
 
-    void SchedulingItem::SetRoomId(int a) { room_id = a; };
+    void SchedulingItem::SetTimeSlot(int a) { time_slot_ = a; };
 
-    void SchedulingItem::SetTimeSlot(int a) { time_slot = a; };
+    void SchedulingItem::SetYear(int a) { year_ = a; };
 
-    void SchedulingItem::SetYear(int a) { year = a; };
-
-    Schedule Schedule::OfTeacher(int teach) const {
+    Schedule Schedule::OfTeacher(int teacher_id) const {
         Schedule oneTeacher;
-        std::copy_if(schedulingVector.begin(), schedulingVector.end(),
-                     std::back_inserter(oneTeacher.schedulingVector),
-                     [&teach](SchedulingItem teacher) {
+        std::copy_if(schedulingVector.begin(), schedulingVector.end(), std::back_inserter(oneTeacher.schedulingVector),
+                     [&teacher_id](SchedulingItem teacher) {
                          bool k = false;
-                         if (teacher.TeacherId() == teach)k = true;
+                         if (teacher.TeacherId() == teacher_id)k = true;
                          return k;
                      });
         return oneTeacher;
@@ -50,6 +56,7 @@ namespace academia {
                          return k;
                      });
         return oneRoom;
+
     }
 
     Schedule Schedule::OfYear(int year) const {
@@ -75,6 +82,7 @@ namespace academia {
                 vect.push_back(i);
         }
         return vect;
+
     }
 
     void Schedule::InsertScheduleItem(const SchedulingItem &item) {
@@ -88,59 +96,66 @@ namespace academia {
     }
 
     SchedulingItem Schedule::operator[](int number) const {
-        return schedulingVector[number];
+        return this->schedulingVector[number];
     }
 
-    Schedule Scheduler::PrepareNewSchedule(const std::vector<int> &rooms,
-                                           const std::map<int, std::vector<int>> &teacher_courses_assignment,
-                                           const std::map<int, std::set<int>> &courses_of_year, int n_time_slots) {
+    Schedule GreedyScheduler::PrepareNewSchedule(const std::vector<int> &rooms,
+                                                 const std::map<int, std::vector<int>> &teacher_courses_assignment,
+                                                 const std::map<int, std::set<int>> &courses_of_year,
+                                                 int n_time_slots) {
 
         Schedule out;
         SchedulingItem sch;
         int nextFreeRoom = 0;
         int nextFreeTimeSlot = 1;
+        bool isTeacherForCourse = false;
 
-
-        for (auto i = courses_of_year.begin(); i != courses_of_year.end(); i++) {
-            for (auto j = i->second.begin(); j != i->second.end(); j++) {
-                sch.SetCourseId(*j);
-                for (auto teacherIter = teacher_courses_assignment.begin();
-                     teacherIter != teacher_courses_assignment.end(); teacherIter++) {
-                    auto pom = std::find(teacherIter->second.begin(), teacherIter->second.end(), *j);
-                    if (pom != teacherIter->second.end()) {
-                        sch.SetTeacherId(teacherIter->first);
-                        break;
+        int amountOfCoursesForOneYear = 0;
+        for (auto year_courses : courses_of_year) {
+            for (auto certainCourse : year_courses.second) {
+                for (auto teacher_courses : teacher_courses_assignment) {
+                    std::vector<int> vectorOfCoursesForOneYear = teacher_courses.second;
+                    for (auto singleCourse : vectorOfCoursesForOneYear) {
+                        if (certainCourse == singleCourse) {
+                            amountOfCoursesForOneYear++;
+                        }
                     }
                 }
-                sch.SetRoomId(rooms[nextFreeRoom]);
-                sch.SetTimeSlot(nextFreeTimeSlot);
-                sch.SetYear(i->first);
-
-                if (n_time_slots <= nextFreeTimeSlot) {
-                    nextFreeTimeSlot = 1;
-                    nextFreeRoom++;
-                } else
-                    nextFreeTimeSlot++;
-
-                out.InsertScheduleItem(sch);
             }
+            if (amountOfCoursesForOneYear > n_time_slots) {
+                throw NoViableSolutionFound();
+            }
+            amountOfCoursesForOneYear = 0;
         }
-
-        int amountOfCourses = 0;
         for (auto teacher_courses : teacher_courses_assignment) {
-            std::vector<int> vectorOfCourses = teacher_courses.second;
-            for (auto singleCourse : vectorOfCourses) {
-                if (singleCourse) {
-                    amountOfCourses++;
+            for (auto singleTeachersCourse : teacher_courses.second) {
+                for (auto courses_year : courses_of_year) {
+                    for (auto singleCourse : courses_year.second) {
+                        sch.SetCourseId(singleCourse);
+                        if (singleCourse == singleTeachersCourse) {
+                            isTeacherForCourse = true;
+                            sch.SetTeacherId(teacher_courses.first);
+                            sch.SetRoomId(rooms[nextFreeRoom]);
+                            sch.SetTimeSlot(nextFreeTimeSlot);
+                            sch.SetYear(courses_year.first);
+
+                            if (n_time_slots <= nextFreeTimeSlot) {
+                                nextFreeTimeSlot = 1;
+                                nextFreeRoom++;
+                            } else
+                                nextFreeTimeSlot++;
+
+                            out.InsertScheduleItem(sch);
+                        }
+
+                    }
+                    if (isTeacherForCourse == false) {
+                        throw NoViableSolutionFound();
+                    }
                 }
-                if (amountOfCourses > n_time_slots) {
-                    throw NoViableSolutionFound();
-                }
+
             }
         }
-
         return out;
     }
-
-
 }
