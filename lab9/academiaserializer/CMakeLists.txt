@@ -1,0 +1,7 @@
+project(academiaserializer)
+
+set(HEDEAR_FILES Serialization.h)
+set(SOURCE_FILES Serialization.cpp)
+
+add_library(libserialization STATIC ${SOURCE_FILES})
+target_include_directories(libserialization PUBLIC .)
