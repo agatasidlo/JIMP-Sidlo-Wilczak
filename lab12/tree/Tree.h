@@ -33,7 +33,6 @@ namespace tree {
         Tree<T> *Root();
 
         T value;
-    private:
         std::unique_ptr<Tree<T>> root_;
         std::unique_ptr<Tree<T>> left_;
         std::unique_ptr<Tree<T>> right_;
@@ -103,11 +102,15 @@ namespace tree {
     void Tree<T>::Insert(T val) {
         Tree<T> *actualNode = Tree<T>::Root();
         std::unique_ptr<Tree<T>> NewValue = std::make_unique<Tree<T>>();
+//        std::unique_ptr<Tree<T>> ParentOfNewValue = std::make_unique<Tree<T>>();
+//        Tree<T> *ParentOfActualNode= nullptr;
         while (true) {
             if (val < actualNode->value)
                 if (actualNode->right_ == nullptr) {
                     actualNode->right_ = std::make_unique<Tree<T>>();
                     actualNode->right_->value = val;
+//                    actualNode->right_->parent_ = actualNode;
+
                     break;
                 } else
                     actualNode = actualNode->right_.get();
@@ -115,6 +118,7 @@ namespace tree {
                 if (actualNode->left_ == nullptr) {
                     actualNode->left_ = std::make_unique<Tree<T>>();
                     actualNode->left_->value = val;
+//                    actualNode->left_->parent_ = actualNode;
                     break;
                 } else
                     actualNode = actualNode->left_.get();
